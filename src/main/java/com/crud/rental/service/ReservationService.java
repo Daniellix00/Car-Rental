@@ -47,6 +47,10 @@ public class ReservationService {
         return reservationRepository.findById(reservationId).orElseThrow(ReservationNotFoundException::new);
     }
 
+    public List<Reservation> getAllReservations() {
+        return reservationRepository.findAll();
+    }
+
     public Reservation getReservationById(final Long reservationId) throws ReservationNotFoundException {
         return reservationRepository.findById(reservationId).orElseThrow(ReservationNotFoundException::new);
     }

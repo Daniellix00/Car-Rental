@@ -13,6 +13,7 @@ public class CarDto {
     private Long id;
     private String colour;
     private String carBrand;
+    private int Kilometers;
     private BigDecimal price;
     private boolean availability;
     private String fuel;

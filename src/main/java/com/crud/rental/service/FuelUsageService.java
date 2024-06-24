@@ -23,7 +23,7 @@ import java.util.List;
 public class FuelUsageService {
     private static final String URL = "https://www.autocentrum.pl/paliwa/ceny-paliw/";
     private final FuelUsageRepository fuelUsageRepository;
-    
+
    public FuelUsage saveFuelUsage(final FuelUsage fuelUsage){
        return fuelUsageRepository.save(fuelUsage);
    }
@@ -35,6 +35,18 @@ public class FuelUsageService {
     private BigDecimal calculateFuelConsumption(int startKm, int endKm, int fuelUsed) {
         int distanceTraveled = endKm - startKm;
         return BigDecimal.valueOf((double) fuelUsed / distanceTraveled * 100);
+    }
+
+    public List<FuelUsage> getAllFuelUsages() {
+        return fuelUsageRepository.findAll();
+    }
+
+    public FuelUsage getFuelUsageById(Long id) {
+        return fuelUsageRepository.findById(id).orElseThrow(() -> new RuntimeException("Fuel usage not found"));
+    }
+
+    public void deleteFuelUsageById(Long id) {
+        fuelUsageRepository.deleteById(id);
     }
 
     public List<FuelPriceDto> getFuelPrices() throws IOException {
