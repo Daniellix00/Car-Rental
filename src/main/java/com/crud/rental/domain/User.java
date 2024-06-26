@@ -16,15 +16,15 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(name = "NAME", nullable = false)
-    private String name;
-    @Column(name = "USERNAME", nullable = false)
-    private String username;
+    @Column(name = "FIRST_NAME", nullable = false)
+    private String firstName;
+    @Column(name = "LAST_NAME", nullable = false)
+    private String lastName;
     @OneToMany(mappedBy = "user")
     private List<Reservation> reservations;
 
-    public User(String name, String username) {
-        this.name = name;
-        this.username = username;
+    public User(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 }

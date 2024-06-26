@@ -34,35 +34,35 @@ public class FuelUsageFormView extends VerticalLayout {
         this.reservationService = reservationService;
         this.fuelUsageService = fuelUsageService;
 
-        // Dodanie przycisku do zakończenia wynajmu i dodania zużycia paliwa
         add(new Button("End Rental and Add Fuel Usage", e -> openFuelUsageDialog()));
 
-        // Konfiguracja siatki
         configureGrid();
         add(reservationGrid);
 
-        // Odświeżenie danych w siatce
         refreshGrid();
     }
 
-    // Konfiguracja siatki
     private void configureGrid() {
         reservationGrid.setColumns("id", "startDate", "endDate", "totalPrice", "status");
         reservationGrid.addComponentColumn(reservation -> new Button("End Rental", e -> openFuelUsageDialog(reservation)));
     }
 
-    // Otwarcie dialogu do dodania zużycia paliwa (bez wstępnie wybranej rezerwacji)
     private void openFuelUsageDialog() {
         openFuelUsageDialog(null);
     }
 
-    // Otwarcie dialogu do dodania zużycia paliwa (z wstępnie wybraną rezerwacją)
     private void openFuelUsageDialog(Reservation reservation) {
         Dialog dialog = new Dialog();
         FormLayout formLayout = new FormLayout();
 
         ComboBox<Reservation> reservationComboBox = new ComboBox<>("Reservation");
-        reservationComboBox.setItemLabelGenerator(res -> "ID: " + res.getId() + ", Car: " + res.getCar().getCarBrand());
+        reservationComboBox.setItemLabelGenerator(res -> {
+            if (res.getCar() != null) {
+                return "ID: " + res.getId() + ", Car: " + res.getCar().getCarBrand();
+            } else {
+                return "ID: " + res.getId() + ", Car: Not Assigned";
+            }
+        });
         reservationComboBox.setItems(reservationService.getAllReservations());
 
         if (reservation != null) {
@@ -76,7 +76,6 @@ public class FuelUsageFormView extends VerticalLayout {
         NumberField fuelConsumption = new NumberField("Fuel Consumption");
         TextField fuelType = new TextField("Fuel Type");
 
-        // Przycisk do zapisywania zużycia paliwa
         Button saveButton = new Button("Save", e -> {
             Reservation selectedReservation = reservationComboBox.getValue();
             if (selectedReservation == null) {
@@ -103,7 +102,6 @@ public class FuelUsageFormView extends VerticalLayout {
         dialog.open();
     }
 
-    // Odświeżenie danych w siatce
     private void refreshGrid() {
         List<Reservation> reservations = reservationService.getAllReservations();
         reservationGrid.setItems(reservations);

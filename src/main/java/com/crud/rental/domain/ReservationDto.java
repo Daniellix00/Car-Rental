@@ -16,5 +16,6 @@ public class ReservationDto {
     private LocalDate endDate;
     private BigDecimal totalPrice;
     private boolean status;
-
+    private Long userId;
+    private Long carId;
 }

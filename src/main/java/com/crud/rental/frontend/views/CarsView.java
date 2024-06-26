@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -33,30 +34,24 @@ public class CarsView extends VerticalLayout {
         this.carService = carService;
         this.carMapper = carMapper;
 
-        // Dodanie przycisku do dodawania nowego samochodu
         add(new Button("Add Car", e -> openAddCarDialog()));
 
-        // Konfiguracja siatki
         configureGrid();
         add(grid);
 
-        // Odświeżenie danych w siatce
         refreshGrid();
     }
 
-    // Konfiguracja siatki
     private void configureGrid() {
         grid.setColumns("id", "colour", "carBrand", "price", "kilometers", "availability", "fuel", "fuelCapacity");
         grid.addComponentColumn(car -> createEditButton(car));
         grid.addComponentColumn(car -> createDeleteButton(car));
     }
 
-    // Tworzenie przycisku edycji dla każdego wiersza
     private Button createEditButton(CarDto car) {
         return new Button("Edit", e -> openEditCarDialog(car));
     }
 
-    // Tworzenie przycisku usuwania dla każdego wiersza
     private Button createDeleteButton(CarDto car) {
         return new Button("Delete", e -> {
             carService.deleteCarById(car.getId());
@@ -64,7 +59,6 @@ public class CarsView extends VerticalLayout {
         });
     }
 
-    // Otwarcie dialogu do dodania nowego samochodu
     private void openAddCarDialog() {
         Dialog dialog = new Dialog();
         FormLayout formLayout = new FormLayout();
@@ -76,22 +70,21 @@ public class CarsView extends VerticalLayout {
         TextField fuel = new TextField("Fuel");
         NumberField fuelCapacity = new NumberField("Fuel Capacity");
 
-        // Przycisk do zapisywania nowego samochodu
         Button saveButton = new Button("Save", e -> {
             CarDto carDto = new CarDto();
             carDto.setColour(colour.getValue());
             carDto.setCarBrand(carBrand.getValue());
-            carDto.setPrice(BigDecimal.valueOf(price.getValue()));
-            carDto.setKilometers(kilometers.getValue().intValue());
+            carDto.setPrice(price.getValue() != null ? BigDecimal.valueOf(price.getValue()) : BigDecimal.ZERO);
+            carDto.setKilometers(kilometers.getValue() != null ? kilometers.getValue().intValue() : 0);
             carDto.setAvailability(true);
             carDto.setFuel(fuel.getValue());
-            carDto.setFuelCapacity(fuelCapacity.getValue());
+            carDto.setFuelCapacity(fuelCapacity.getValue() != null ? fuelCapacity.getValue() : 0.0);
 
-            Car car = carMapper.mapToCar(carDto); // Mapowanie CarDto na Car
-            carService.saveCar(car); // Zapisanie samochodu
+            Car car = carMapper.mapToCar(carDto);
+            carService.saveCar(car);
 
-            refreshGrid(); // Odświeżenie siatki
-            dialog.close(); // Zamknięcie dialogu
+            refreshGrid();
+            dialog.close();
         });
 
         formLayout.add(colour, carBrand, price, kilometers, fuel, fuelCapacity, saveButton);
@@ -99,7 +92,6 @@ public class CarsView extends VerticalLayout {
         dialog.open();
     }
 
-    // Otwarcie dialogu do edycji istniejącego samochodu
     private void openEditCarDialog(CarDto carDto) {
         Dialog dialog = new Dialog();
         FormLayout formLayout = new FormLayout();
@@ -114,7 +106,6 @@ public class CarsView extends VerticalLayout {
         NumberField fuelCapacity = new NumberField("Fuel Capacity");
         fuelCapacity.setValue(carDto.getFuelCapacity());
 
-        // Przycisk do zapisywania edytowanego samochodu
         Button saveButton = new Button("Save", e -> {
             carDto.setColour(colour.getValue());
             carDto.setCarBrand(carBrand.getValue());
@@ -123,11 +114,11 @@ public class CarsView extends VerticalLayout {
             carDto.setFuel(fuel.getValue());
             carDto.setFuelCapacity(fuelCapacity.getValue());
 
-            Car car = carMapper.mapToCar(carDto); // Mapowanie CarDto na Car
-            carService.saveCar(car); // Zapisanie samochodu
+            Car car = carMapper.mapToCar(carDto);
+            carService.saveCar(car);
 
-            refreshGrid(); // Odświeżenie siatki
-            dialog.close(); // Zamknięcie dialogu
+            refreshGrid();
+            dialog.close();
         });
 
         formLayout.add(colour, carBrand, price, kilometers, fuel, fuelCapacity, saveButton);
@@ -135,7 +126,6 @@ public class CarsView extends VerticalLayout {
         dialog.open();
     }
 
-    // Odświeżenie danych w siatce
     private void refreshGrid() {
         List<CarDto> carDtos = carService.getAllCars().stream()
                 .map(carMapper::mapToCarDto)

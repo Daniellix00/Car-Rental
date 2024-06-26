@@ -27,8 +27,9 @@ public class MainView extends VerticalLayout {
         RouterLink fuelPricesLink = new RouterLink("Fuel Prices", FuelPricesView.class);
         RouterLink rentalFormLink = new RouterLink("Rental Form", RentalFormView.class);
         RouterLink fuelUsageLink = new RouterLink("End Rental and Add Fuel Usage", FuelUsageFormView.class);
+        RouterLink userListLink = new RouterLink("User List", UserListView.class);
 
-        HorizontalLayout linksLayout = new HorizontalLayout(carsLink, fuelPricesLink, rentalFormLink, fuelUsageLink);
+        HorizontalLayout linksLayout = new HorizontalLayout(carsLink, fuelPricesLink, rentalFormLink, fuelUsageLink, userListLink);
         linksLayout.addClassName("links-layout");
 
         // Adding components to the layout
