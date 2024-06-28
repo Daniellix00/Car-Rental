@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -32,6 +31,12 @@ public class Reservation {
     @Column(name = "STATUS", nullable = false)
     private boolean status;
 
+    @Column(name = "MILEAGE", nullable = false)
+    private int mileage;
+
+    @Column(name = "ENDED", nullable = false)
+    private boolean ended;
+
     @ManyToOne
     @JoinColumn(name = "USER_ID")
     private User user;
@@ -40,8 +45,9 @@ public class Reservation {
     @JoinColumn(name = "CAR_ID")
     private Car car;
 
-    @OneToMany(mappedBy = "reservation")
+    @OneToMany(mappedBy = "reservation", fetch = FetchType.EAGER)
     private List<Damage> damages;
+
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
@@ -51,11 +57,17 @@ public class Reservation {
     )
     private List<Option> options;
 
-    public Reservation(Long id, LocalDate startDate, LocalDate endDate, Boolean status, List<Option> options) {
-        this.id = id;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.status = status;
-        this.options = options;
+    @Override
+    public String toString() {
+        return "Reservation{" +
+                "id=" + id +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", totalPrice=" + totalPrice +
+                ", status=" + status +
+                ", mileage=" + mileage +
+                ", ended=" + ended +
+                ", car=" + (car != null ? car.getCarBrand() : "null") +
+                '}';
     }
 }

@@ -5,6 +5,7 @@ import com.crud.rental.exception.UserNotFoundException;
 import com.crud.rental.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,7 +13,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    public List<User> getAllUsers(){return  userRepository.findAll();}
+    @Transactional(readOnly = true)
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
     public User getUserById(final Long userId) throws UserNotFoundException{
       return   userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
@@ -20,6 +24,8 @@ public class UserService {
     public void deleteUser(final Long userId) throws UserNotFoundException{
         userRepository.delete(userRepository.findById(userId).orElseThrow(UserNotFoundException::new));
     }
-
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 
 }

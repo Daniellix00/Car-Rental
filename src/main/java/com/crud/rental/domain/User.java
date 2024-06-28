@@ -15,16 +15,35 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+
+    @Column(name = "USERNAME", nullable = false, unique = true)
+    private String username;
+
+    @Column(name = "PASSWORD", nullable = false)
+    private String password;
+
     @Column(name = "FIRST_NAME", nullable = false)
     private String firstName;
+
     @Column(name = "LAST_NAME", nullable = false)
     private String lastName;
-    @OneToMany(mappedBy = "user")
+
+    @Column(name = "IS_ADMIN", nullable = false)
+    private boolean isAdmin;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Reservation> reservations;
 
     public User(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
+    }
+
+    public User(String firstName, String lastName, String username, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.password = password;
     }
 }

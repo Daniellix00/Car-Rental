@@ -1,9 +1,9 @@
 package com.crud.rental.mapper;
 
-import com.crud.rental.domain.Car;
+import com.crud.rental.domain.Option;
 import com.crud.rental.domain.Reservation;
 import com.crud.rental.domain.ReservationDto;
-import com.crud.rental.domain.User;
+import com.crud.rental.repository.OptionRepository;
 import com.crud.rental.service.CarService;
 import com.crud.rental.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,9 @@ public class ReservationMapper {
     @Autowired
     private CarService carService;
 
+    @Autowired
+    private OptionRepository optionRepository;
+
     public Reservation mapToReservation(ReservationDto reservationDto) {
         Reservation reservation = new Reservation();
         reservation.setId(reservationDto.getId());
@@ -29,16 +32,24 @@ public class ReservationMapper {
         reservation.setTotalPrice(reservationDto.getTotalPrice());
         reservation.setStatus(reservationDto.isStatus());
 
-        User user = userService.getUserById(reservationDto.getUserId());
-        reservation.setUser(user);
-
-        Car car = carService.getCarById(reservationDto.getCarId());
-        reservation.setCar(car);
+        reservation.setUser(userService.getUserById(reservationDto.getUserId()));
+        reservation.setCar(carService.getCarById(reservationDto.getCarId()));
+        reservation.setOptions(reservationDto.getOptionNames().stream()
+                .map(name -> optionRepository.findByName(name).orElseThrow(() -> new RuntimeException("Option not found")))
+                .collect(Collectors.toList()));
 
         return reservation;
     }
 
     public ReservationDto mapToReservationDto(Reservation reservation) {
+        List<Long> optionIds = reservation.getOptions().stream()
+                .map(Option::getId)
+                .collect(Collectors.toList());
+
+        List<String> optionNames = reservation.getOptions().stream()
+                .map(Option::getName)
+                .collect(Collectors.toList());
+
         return new ReservationDto(
                 reservation.getId(),
                 reservation.getStartDate(),
@@ -46,7 +57,9 @@ public class ReservationMapper {
                 reservation.getTotalPrice(),
                 reservation.isStatus(),
                 reservation.getUser().getId(),
-                reservation.getCar().getId()
+                reservation.getCar().getId(),
+                optionIds,
+                optionNames
         );
     }
 

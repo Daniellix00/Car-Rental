@@ -5,12 +5,12 @@ import com.crud.rental.domain.CarDto;
 import com.crud.rental.mapper.CarMapper;
 import com.crud.rental.service.CarService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +44,8 @@ public class CarsView extends VerticalLayout {
 
     private void configureGrid() {
         grid.setColumns("id", "colour", "carBrand", "price", "kilometers", "availability", "fuel", "fuelCapacity");
-        grid.addComponentColumn(car -> createEditButton(car));
-        grid.addComponentColumn(car -> createDeleteButton(car));
+        grid.addComponentColumn(car -> createEditButton(car)).setHeader("Edit");
+        grid.addComponentColumn(car -> createDeleteButton(car)).setHeader("Delete");
     }
 
     private Button createEditButton(CarDto car) {
@@ -65,26 +65,35 @@ public class CarsView extends VerticalLayout {
 
         TextField colour = new TextField("Colour");
         TextField carBrand = new TextField("Brand");
-        NumberField price = new NumberField("Price");
-        NumberField kilometers = new NumberField("Kilometers");
-        TextField fuel = new TextField("Fuel");
-        NumberField fuelCapacity = new NumberField("Fuel Capacity");
+        TextField price = new TextField("Price");
+        TextField kilometers = new TextField("Kilometers");
+        ComboBox<String> fuel = new ComboBox<>("Fuel");
+
+        fuel.setItems(fetchFuelTypes());
+        TextField fuelCapacity = new TextField("Fuel Capacity");
 
         Button saveButton = new Button("Save", e -> {
-            CarDto carDto = new CarDto();
-            carDto.setColour(colour.getValue());
-            carDto.setCarBrand(carBrand.getValue());
-            carDto.setPrice(price.getValue() != null ? BigDecimal.valueOf(price.getValue()) : BigDecimal.ZERO);
-            carDto.setKilometers(kilometers.getValue() != null ? kilometers.getValue().intValue() : 0);
-            carDto.setAvailability(true);
-            carDto.setFuel(fuel.getValue());
-            carDto.setFuelCapacity(fuelCapacity.getValue() != null ? fuelCapacity.getValue() : 0.0);
+            try {
+                CarDto carDto = new CarDto();
+                carDto.setColour(colour.getValue());
+                carDto.setCarBrand(carBrand.getValue());
+                carDto.setPrice(new BigDecimal(price.getValue()));
+                carDto.setKilometers(Integer.parseInt(kilometers.getValue()));
+                carDto.setAvailability(true);
+                carDto.setFuel(fuel.getValue());
+                carDto.setFuelCapacity(Double.parseDouble(fuelCapacity.getValue()));
 
-            Car car = carMapper.mapToCar(carDto);
-            carService.saveCar(car);
+                Car car = carMapper.mapToCar(carDto);
+                carService.saveCar(car);
 
-            refreshGrid();
-            dialog.close();
+                Notification.show("Car added: " + carDto.getCarBrand() + ", " + carDto.getPrice() + ", " + carDto.getKilometers() + ", " + carDto.getFuelCapacity());
+                refreshGrid();
+                dialog.close();
+            } catch (NumberFormatException ex) {
+                Notification.show("Please enter valid numbers for price, kilometers, and fuel capacity.");
+            } catch (Exception ex) {
+                Notification.show("Error: " + ex.getMessage());
+            }
         });
 
         formLayout.add(colour, carBrand, price, kilometers, fuel, fuelCapacity, saveButton);
@@ -98,27 +107,33 @@ public class CarsView extends VerticalLayout {
 
         TextField colour = new TextField("Colour", carDto.getColour());
         TextField carBrand = new TextField("Brand", carDto.getCarBrand());
-        NumberField price = new NumberField("Price");
-        price.setValue(carDto.getPrice().doubleValue());
-        NumberField kilometers = new NumberField("Kilometers");
-        kilometers.setValue((double) carDto.getKilometers());
-        TextField fuel = new TextField("Fuel", carDto.getFuel());
-        NumberField fuelCapacity = new NumberField("Fuel Capacity");
-        fuelCapacity.setValue(carDto.getFuelCapacity());
+        TextField price = new TextField("Price", carDto.getPrice().toString());
+        TextField kilometers = new TextField("Kilometers", String.valueOf(carDto.getKilometers()));
+        ComboBox<String> fuel = new ComboBox<>("Fuel");
+        fuel.setItems(fetchFuelTypes());
+        fuel.setValue(carDto.getFuel());
+        TextField fuelCapacity = new TextField("Fuel Capacity", String.valueOf(carDto.getFuelCapacity()));
 
         Button saveButton = new Button("Save", e -> {
-            carDto.setColour(colour.getValue());
-            carDto.setCarBrand(carBrand.getValue());
-            carDto.setPrice(BigDecimal.valueOf(price.getValue()));
-            carDto.setKilometers(kilometers.getValue().intValue());
-            carDto.setFuel(fuel.getValue());
-            carDto.setFuelCapacity(fuelCapacity.getValue());
+            try {
+                carDto.setColour(colour.getValue());
+                carDto.setCarBrand(carBrand.getValue());
+                carDto.setPrice(new BigDecimal(price.getValue()));
+                carDto.setKilometers(Integer.parseInt(kilometers.getValue()));
+                carDto.setFuel(fuel.getValue());
+                carDto.setFuelCapacity(Double.parseDouble(fuelCapacity.getValue()));
 
-            Car car = carMapper.mapToCar(carDto);
-            carService.saveCar(car);
+                Car car = carMapper.mapToCar(carDto);
+                carService.saveCar(car);
 
-            refreshGrid();
-            dialog.close();
+                Notification.show("Car updated: " + carDto.getCarBrand() + ", " + carDto.getPrice() + ", " + carDto.getKilometers() + ", " + carDto.getFuelCapacity());
+                refreshGrid();
+                dialog.close();
+            } catch (NumberFormatException ex) {
+                Notification.show("Please enter valid numbers for price, kilometers, and fuel capacity.");
+            } catch (Exception ex) {
+                Notification.show("Error: " + ex.getMessage());
+            }
         });
 
         formLayout.add(colour, carBrand, price, kilometers, fuel, fuelCapacity, saveButton);
@@ -131,5 +146,9 @@ public class CarsView extends VerticalLayout {
                 .map(carMapper::mapToCarDto)
                 .collect(Collectors.toList());
         grid.setItems(carDtos);
+    }
+
+    private List<String> fetchFuelTypes() {
+        return List.of("95", "98", "ON", "ON+", "LPG");
     }
 }

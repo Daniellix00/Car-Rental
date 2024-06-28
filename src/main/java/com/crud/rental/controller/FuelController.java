@@ -26,4 +26,9 @@ public class FuelController {
             return ResponseEntity.status(500).build();
         }
     }
+
+    @GetMapping("/types")
+    public List<String> getFuelTypes() {
+        return List.of("95", "98", "ON", "ON+", "LPG");
+    }
 }
