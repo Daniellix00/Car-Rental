@@ -16,6 +16,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
@@ -42,6 +43,8 @@ public class RentalFormView extends VerticalLayout {
     @Autowired
     private OptionService optionService;
 
+    private Grid<ReservationDto> reservationGrid;
+
     public RentalFormView(ReservationService reservationService, ReservationMapper reservationMapper, CarService carService, UserService userService, OptionService optionService) {
         this.reservationService = reservationService;
         this.reservationMapper = reservationMapper;
@@ -51,6 +54,10 @@ public class RentalFormView extends VerticalLayout {
 
         Button createReservationButton = new Button("Create Reservation", e -> openReservationDialog());
         add(createReservationButton);
+
+        reservationGrid = new Grid<>(ReservationDto.class);
+        reservationGrid.setColumns("id", "startDate", "endDate", "totalPrice", "status", "userId", "carId");
+        add(reservationGrid);
     }
 
     private void openReservationDialog() {
@@ -96,10 +103,17 @@ public class RentalFormView extends VerticalLayout {
             reservationService.addReservation(reservation);
             Notification.show("Reservation created successfully");
             dialog.close();
+
+            refreshGrid();
         });
 
         formLayout.add(startDate, endDate, carComboBox, userComboBox, optionsComboBox, saveButton);
         dialog.add(formLayout);
         dialog.open();
+    }
+
+    private void refreshGrid() {
+        List<ReservationDto> reservations = reservationMapper.mapToReservationDtoList(reservationService.findAll());
+        reservationGrid.setItems(reservations);
     }
 }

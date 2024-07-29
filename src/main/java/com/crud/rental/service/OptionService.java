@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,4 +22,8 @@ public void deleteOption(final Long optionId) throws OptionNotFoundException{
     optionRepository.delete(optionRepository.findById(optionId).orElseThrow(OptionNotFoundException::new));
 }
 
+public Option getOptionByName(String name) {
+    Optional<Option> option = optionRepository.findByName(name);
+    return option.orElseThrow(() -> new IllegalArgumentException("Option not found: " + name));
+}
 }

@@ -5,10 +5,12 @@ import com.crud.rental.domain.Reservation;
 import com.crud.rental.domain.ReservationDto;
 import com.crud.rental.repository.OptionRepository;
 import com.crud.rental.service.CarService;
+import com.crud.rental.service.OptionService;
 import com.crud.rental.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +24,7 @@ public class ReservationMapper {
     private CarService carService;
 
     @Autowired
-    private OptionRepository optionRepository;
+    private OptionService optionService;
 
     public Reservation mapToReservation(ReservationDto reservationDto) {
         Reservation reservation = new Reservation();
@@ -34,9 +36,11 @@ public class ReservationMapper {
 
         reservation.setUser(userService.getUserById(reservationDto.getUserId()));
         reservation.setCar(carService.getCarById(reservationDto.getCarId()));
-        reservation.setOptions(reservationDto.getOptionNames().stream()
-                .map(name -> optionRepository.findByName(name).orElseThrow(() -> new RuntimeException("Option not found")))
-                .collect(Collectors.toList()));
+        List<Option> options = reservationDto.getOptionNames() != null ?
+                reservationDto.getOptionNames().stream()
+                        .map(optionService::getOptionByName)
+                        .collect(Collectors.toList()) : new ArrayList<>();
+        reservation.setOptions(options);
 
         return reservation;
     }

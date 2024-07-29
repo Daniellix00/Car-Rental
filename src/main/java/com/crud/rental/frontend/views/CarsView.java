@@ -2,6 +2,7 @@ package com.crud.rental.frontend.views;
 
 import com.crud.rental.domain.Car;
 import com.crud.rental.domain.CarDto;
+import com.crud.rental.domain.User;
 import com.crud.rental.mapper.CarMapper;
 import com.crud.rental.service.CarService;
 import com.vaadin.flow.component.button.Button;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -34,7 +36,11 @@ public class CarsView extends VerticalLayout {
         this.carService = carService;
         this.carMapper = carMapper;
 
-        add(new Button("Add Car", e -> openAddCarDialog()));
+        var loggedUser = VaadinSession.getCurrent().getAttribute(User.class);
+        if (loggedUser != null && loggedUser.isAdmin())
+        {
+            add(new Button("Add Car", e -> openAddCarDialog()));
+        }
 
         configureGrid();
         add(grid);

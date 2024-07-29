@@ -12,6 +12,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private User loggedUser;
+
     private final UserRepository userRepository;
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
@@ -26,6 +28,16 @@ public class UserService {
     }
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public void login(User user) {
+        // Logika logowania
+        // Po udanym logowaniu ustaw `loggedInUser`
+        loggedUser = user;
+    }
+
+    public User getLoggedUser() {
+        return loggedUser;
     }
 
 }

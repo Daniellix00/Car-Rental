@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -20,5 +21,5 @@ public class ReservationDto {
     private Long userId;
     private Long carId;
     private List<Long> optionIds;
-    private List<String> optionNames;
+    private List<String> optionNames = new ArrayList<>();;
 }
